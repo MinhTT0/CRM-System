@@ -13,7 +13,7 @@ This project is a Customer Relationship Management (CRM) web application designe
 🌐 Access Website
 
 - Demo is deployed at: http://your-crm-demo-link.com](https://khaituanminh.atwebpages.com/WEB/login.html
-- Demo Account: Username: khai2  Password: 123
+- Demo Account: Username: khai2 / Password: 123
     
 🛠️ Technologies Used
 
