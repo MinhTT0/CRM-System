@@ -1,4 +1,5 @@
 CRM Web System
+
 📌 Introduction
 
 This project is a Customer Relationship Management (CRM) web application designed to help businesses store, manage, and track customer information, appointments, and revenue reports.
@@ -9,6 +10,13 @@ This project is a Customer Relationship Management (CRM) web application designe
 - Improve customer care processes.
 - Provide an intuitive and user-friendly interface.
 
+🌐 Access Website
+
+Demo is deployed at: http://your-crm-demo-link.com](https://khaituanminh.atwebpages.com/WEB/login.html
+Demo Account:
+    Username: khai2
+    Password: 123
+    
 🛠️ Technologies Used
 
 - Frontend: HTML, CSS, JavaScript, ReactJS, Bootstrap
