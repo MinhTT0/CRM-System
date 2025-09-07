@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý loại Khách hàng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="DataTables/datatables.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="DataTables/datatables.min.js"></script>
+  <script src="logout.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="sidebar bg-dark text-white">
+  <h2 class="text-center py-3">CRM System</h2>
+  <a href="index.html" class="nav-link px-3 " data-feature="Báo cáo"> <i class="bi bi-house-door me-2"></i>Trang chủ</a>
+
+  <a class="nav-link px-3 active bg-primary text-white " data-bs-toggle="collapse" data-feature="Quản lý khách hàng" href="#customerMenu" >
+    <i class="bi bi-people me-2"></i>Khách Hàng <i class="bi bi-caret-down-fill float-end"></i>
+  </a>
+  <div class="collapse" id="customerMenu">
+    <a href="customers.html">Thông tin khách hàng</a>
+    <a href="cskh.html">Chăm sóc khách hàng</a>
+    <a href="customerstype.html">Loại khách hàng</a>
+    <a href="more.html">Dữ liệu tuỳ chỉnh</a>
+  </div>
+  <a href="user.html" class="nav-link px-3" id="nav-manager" ><i class="bi bi-person-workspace me-2"></i>Nhân Viên</a>
+  <a href="orders.html" class="nav-link px-3"  id="nav-order"><i class="bi bi-bag-check me-2"></i>Đơn Hàng</a>
+  <a class="nav-link px-3" id="nav-product" data-bs-toggle="collapse" href="#productMenu" >
+  <i class="bi bi-box-seam me-2" ></i>Sản Phẩm <i class="bi bi-caret-down-fill float-end"></i>
+  </a>
+      <div class="collapse" id="productMenu">
+      <a href="products.html">Thông tin sản phẩm</a>
+      <a href="measurement.html">Loại đơn vị tính</a>
+      </div>
+  <a href="work.html" class="nav-link px-3"  id="nav-work"><i class="bi bi-list-task me-2"></i>Công việc</a> 
+  <a href="apointment.html" class="nav-link px-3 " id="nav-apointment"><i class="bi bi-calendar-check"></i> Lịch hẹn</a>  
+   <div class="mt-auto">
+      <a  id="returnBtn" class="nav-link px-3 outline" href="ADMIN/business.html">
+        <button class="btn btn-outline-danger mb-3 ms-2"><i class="bi bi-box-arrow-right me-2"></i>ADMIN WEB</button>
+      </a>
+    </div>
+</div>  
+  <div class="content p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Quản lý loại khách hàng</h2>
+      <div>
+        <div class="d-flex align-items-center gap-3">
+          <!-- notification dropdown -->
+          <div class="dropdown" data-bs-auto-close="outside">
+            <a class="btn btn-light position-relative"
+               href="#"
+               id="notifDropdown"
+               data-bs-toggle="dropdown"
+               aria-expanded="false"
+               ata-bs-auto-close="outside">
+              <i class="bi bi-bell fs-4"></i>
+              <span id="notifBadge"
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                0
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end p-2"
+                aria-labelledby="notifDropdown"
+                style="max-width:300px; max-height:400px; overflow:auto;">
+              <li class="text-center text-muted small">Đang tải...</li>
+            </ul>
+          </div>
+          
+    
+          <!-- user dropdown -->
+          <div class="dropdown">
+            <a id="userNameDisplay"
+               class="btn btn-light dropdown-toggle"
+               href="#"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+              <i class="bi bi-person-circle text-primary"></i> Tài khoản
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
+              <li><a class="dropdown-item" href="#">Đổi mật khẩu</a></li>
+              <li id="logoutBtn">
+                <a class="dropdown-item" href="#">
+                  <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </div>
+    </div>
+    <hr />
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addCustomerTypeModal">Thêm loại khách hàng</button>
+    <table class="table table-bordered" id="customerTable">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Mã loại KH</th>
+          <th>Tên loại KH</th>
+          <th>Mô tả</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+<!-- Modal Thêm -->
+<div class="modal fade" id="addCustomerTypeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="addCustomerTypeForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Loại khách hàng</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Loại KH</label><input type="text" class="form-control" name="name" required></div>
+            <div class="mb-3"><label class="form-label">Mô tả</label> <textarea class="form-control auto-resize" name="description" rows="1" required></textarea></div>
+                <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Hoặc nhập bằng Excel</h6>
+                <a href="template/customerstype_template.xlsx" download class="text-decoration-underline small text-primary">
+                  <i class="bi bi-download"></i> Tải mẫu Excel
+                </a>
+              </div>
+              <div class="d-grid gap-2">
+                <input type="file" class="form-control" id="excelFileInput" accept=".xlsx, .xls">
+                <button type="button" class="btn btn-secondary" id="importExcelBtn">
+                  <i class="bi bi-upload"></i> Nhập từ Excel
+                </button>
+              </div>              
+            </div>
+        </div>
+          <div class="modal-footer"><button type="submit" class="btn btn-success">Thêm mới</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Sửa -->
+  <div class="modal fade" id="editCustomerTypeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editCustomerTypeForm">
+          <input type="hidden" name="id_type">
+          <div class="modal-header">
+            <h5 class="modal-title">Sửa loại khách hàng</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Tên KH</label><input type="text" class="form-control" name="name" required></div>
+            <div class="mb-3"><label class="form-label">Mô tả</label> <textarea class="form-control auto-resize" name="description" rows="1" required></textarea></div>
+          </div>
+          <div class="modal-footer"><button type="submit" class="btn btn-primary">Cập nhật</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+   const id_business = localStorage.getItem('id_business') ;
+    let dataTable;
+function featchType() {
+  $.ajax({
+    url: 'https://khaituanminh.atwebpages.com/api/get_customertype.php',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ id_business }),
+    success: function (res) {
+      if (res.status !== 'success') return Swal.fire('Lỗi', 'Không tải được danh sách loại khách hàng', 'error');;
+          const tableData = res.data.map((usertype, i) => {
+            const row = [
+              i + 1, // STT
+              usertype.id_type, 
+              usertype.name, 
+              usertype.description || '', 
+              `
+                <button class="btn btn-primary btn-sm edit-btn" data-id="${usertype.id_type}">Sửa</button>
+                <button class="btn btn-danger btn-sm delete-btn" data-id="${usertype.id_type}">Xóa</button>
+              `
+            ];
+            return row;
+          });
+          // Tạo tiêu đề bảng
+          if (!$.fn.DataTable.isDataTable('#customerTable')) {
+            dataTableWork = $('#customerTable').DataTable({
+              data: tableData,
+              autoWidth: false,
+              scrollX: true,
+              fixedColumns: {
+                right: 1  
+              },
+              layout: {
+                topStart: {
+                    buttons: [
+                    {
+                      extend: 'excelHtml5',
+                      text: '<i class="bi bi-download"></i> Xuất Excel',
+                      className: 'btn btn-outline-success',
+                      exportOptions: {
+                      columns: ':not(:last-child)'
+                      // Hoặc chỉ định index: columns: [0,1,2,3] 
+                      }
+                    },
+                  ]
+                }
+               },
+              columns: [
+                { title: 'STT' },
+                { title: 'Mã loại KH' },
+                { title: 'Tên loại KH' },
+                { title: 'Mô tả' },
+                { title: 'Hành động', orderable: false, width: '120px'  }
+              ],
+              language: {
+                searchPlaceholder: "Nhập thông tin muốn tìm kiếm",
+                search: "Tìm kiếm:",
+              }
+            });
+          } else {
+            dataTableWork.clear();
+            dataTableWork.rows.add(tableData);
+            dataTableWork.draw(false);
+          }
+          $('#loadingIndicator').addClass('d-none');
+          $('#customerContent').removeClass('d-none').addClass('fade-in');
+
+    },
+    error: function () {
+      Swal.fire('Lỗi', 'Không thể tải danh sách khách hàng', 'error');
+    }
+  });
+}
+
+    $('#addCustomerTypeForm').submit(function(e) {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(this));
+    data.id_business = id_business;
+    $.ajax({
+        url: 'https://khaituanminh.atwebpages.com/api/add_customertype.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(res) {
+        if (res.status === 'success') {
+            featchType();
+            bootstrap.Modal.getInstance(document.getElementById('addCustomerTypeModal')).hide();
+            Swal.fire('Thành công!', 'Đã thêm loại khách hàng.', 'success');
+        } else {
+            Swal.fire('Lỗi', res.message, 'error');
+        }
+        }
+    });
+    });
+
+    $(document).on('click', '.edit-btn', function() {
+    const id   = $(this).data('id');
+    const $tr  = $(this).closest('tr');
+    const name = $tr.children().eq(2).text().trim();
+    const desc = $tr.children().eq(3).text().trim();
+    const $form = $('#editCustomerTypeForm');
+    $form.find('[name=id_type]').val(id);
+    $form.find('[name=name]').val(name);
+    $form.find('[name=description]').val(desc);
+    new bootstrap.Modal($('#editCustomerTypeModal')).show();
+  });
+
+ 
+  $('#editCustomerTypeForm').submit(function(e) {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(this));
+    $.ajax({
+      url: 'https://khaituanminh.atwebpages.com/api/update_customertype.php',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(data),
+      success: function(res) {
+        if (res.status === 'success') {
+          bootstrap.Modal.getInstance($('#editCustomerTypeModal')).hide();
+          Swal.fire('Thành công!', 'Đã cập nhật loại khách hàng.', 'success');
+          featchType();
+        } else {
+          Swal.fire('Lỗi', res.message, 'error');
+        }
+      },
+      error: function() {
+        Swal.fire('Lỗi', 'Không thể cập nhật loại khách hàng.', 'error');
+      }
+    });
+  });
+
+
+    $(document).on('click', '.delete-btn', function() {
+      const id = $(this).data('id');
+      Swal.fire({
+        title: 'Bạn chắc chắn muốn xóa?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+      }).then(result => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: 'https://khaituanminh.atwebpages.com/api/del_customertype.php',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id_type: id }),
+            success: function(res) {
+              if (res.status === 'success') {
+                featchType();
+                Swal.fire('Đã xóa!', '', 'success');
+              } else {
+                Swal.fire('Lỗi', res.message, 'error');
+              }
+            },
+            error: function () {
+          Swal.fire('Lỗi', 'Không thể xóa loại', 'error');
+        }
+          });
+        }
+      });
+    });
+
+// Nhập từ Excel 
+$('#importExcelBtn').off('click').on('click', function() {
+  Swal.fire({ title: 'Đang load...', didOpen: () => { Swal.showLoading(); } });
+  const fileInput = document.getElementById('excelFileInput');
+  if (!fileInput.files.length) {
+    return Swal.fire('Lỗi', 'Vui lòng chọn một tệp Excel', 'error');
+  }
+  
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+      if (jsonData.length < 2) {
+        return Swal.fire('Lỗi', 'File Excel không có dữ liệu.', 'error');
+      }
+
+      // Dòng tiêu đề: [Tên loại, Mô tả]
+      const rows = jsonData.slice(1).map((row, i) => ({
+        name: row[0]?.toString().trim() || '',
+        description: row[1]?.toString().trim() || ''
+      }));
+      
+
+      let successCount = 0, failCount = 0;
+
+      function sendNext(index) {
+        if (index >= rows.length) {
+          Swal.fire({
+            title: 'Hoàn tất',
+            html: `Thành công: ${successCount} | Thất bại: ${failCount}`,
+            icon: 'info'
+          }).then(() => {
+            featchType(); 
+            bootstrap.Modal.getInstance($('#addCustomerTypeModal')).hide();
+            $('#addCustomerTypeForm')[0].reset();
+            $('#excelFileInput').val('');
+          });
+          return;
+        }
+
+        const item = rows[index];
+        if (!item.name) {
+          failCount++;
+          return sendNext(index + 1);
+        }
+
+        const payload = {
+          id_business: id_business,
+          name: item.name,
+          description: item.description
+        };
+
+        $.ajax({
+          url: 'https://khaituanminh.atwebpages.com/api/add_customertype.php',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(payload),
+          success: function(res) {
+            if (res.status === 'success') successCount++;
+            else failCount++;
+            sendNext(index + 1);
+          },
+          error: function() {
+            failCount++;
+            sendNext(index + 1);
+          }
+        });
+      }
+
+      sendNext(0);
+    } catch (err) {
+      console.error(err);
+      Swal.fire('Lỗi', 'Không thể đọc file Excel.', 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+
+    $(document).ready(function() {
+      featchType();
+    $('#addCustomerTypeModal').on('hidden.bs.modal', function () {
+      $('#addCustomerTypeForm')[0].reset();
+    });
+
+    $('#editCustomerTypeModal').on('hidden.bs.modal', function () {
+      $('#editCustomerTypeForm')[0].reset();
+    });
+
+    });
+  </script>
+</body>
+</html>

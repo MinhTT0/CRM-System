@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gợi ý kết bạn - Vnow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .suggestions-container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            padding: 1.5rem 1.5rem 1rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .title::before {
+            content: "👥";
+            font-size: 1.1rem;
+        }
+
+        .refresh-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px) rotate(180deg);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-icon {
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .suggestions-list {
+            padding: 0.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .suggestions-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .suggestions-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+
+        .suggestions-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 3px;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.25rem;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .friend-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .friend-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .friend-item:hover::before {
+            left: 100%;
+        }
+
+        .avatar-container {
+            position: relative;
+            margin-right: 1rem;
+        }
+
+        .avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            border: 3px solid white;
+        }
+
+        .friend-item:nth-child(2n) .avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .friend-item:nth-child(3n) .avatar {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .friend-item:nth-child(4n) .avatar {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .friend-item:nth-child(5n) .avatar {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            background: #2ecc71;
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.4);
+        }
+
+        .friend-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .friend-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .verified-badge {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .friend-username {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 0.25rem;
+        }
+
+        .mutual-friends {
+            font-size: 0.75rem;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-left: 0.5rem;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .added-btn {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .added-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .view-more {
+            padding: 1rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .view-more-btn {
+            background: none;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-more-btn:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .suggestions-container {
+                max-width: 100%;
+            }
+            
+            .friend-item {
+                padding: 0.75rem;
+            }
+            
+            .avatar {
+                width: 46px;
+                height: 46px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="suggestions-container">
+        <div class="header">
+            <h2 class="title">Người bạn có thể biết</h2>
+            <button class="refresh-btn" onclick="refreshSuggestions()">
+                <div class="refresh-icon"></div>
+            </button>
+        </div>
+        
+        <div class="suggestions-list" id="suggestionsList">
+            <div class="friend-item fade-in">
+                <div class="avatar-container">
+                    <div class="avatar">KĐ</div>
+                    <div class="online-indicator"></div>
+                </div>
+                <div class="friend-info">
+                    <div class="friend-name">
+                        Khánh đăng
+                        <div class="verified-badge">✓</div>
+                    </div>
+                    <div class="friend-username">@anhkhanh</div>
+                    <div class="mutual-friends">5 bạn chung</div>
+                </div>
+                <button class="action-btn add-btn" onclick="addFriend(this)">👤+</button>
+            </div>
+
+            <div class="friend-item fade-in">
+                <div class="avatar-container">
+                    <div class="avatar">KĐ</div>
+                </div>
+                <div class="friend-info">
+                    <div class="friend-name">Khánh đăng</div>
+                    <div class="friend-username">@anhkhanh559</div>
+                    <div class="mutual-friends">12 bạn chung</div>
+                </div>
+                <button class="action-btn add-btn" onclick="addFriend(this)">👤+</button>
+            </div>
+
+            <div class="friend-item fade-in">
+                <div class="avatar-container">
+                    <div class="avatar">KĐ</div>
+                    <div class="online-indicator"></div>
+                </div>
+                <div class="friend-info">
+                    <div class="friend-name">Khánh đăng</div>
+                    <div class="friend-username">@anhkhanh901</div>
+                    <div class="mutual-friends">3 bạn chung</div>
+                </div>
+                <button class="action-btn add-btn" onclick="addFriend(this)">👤+</button>
+            </div>
+
+            <div class="friend-item fade-in">
+                <div class="avatar-container">
+                    <div class="avatar">KĐ</div>
+                </div>
+                <div class="friend-info">
+                    <div class="friend-name">
+                        Khánh đăng
+                        <div class="verified-badge">✓</div>
+                    </div>
+                    <div class="friend-username">@anhkhanh894</div>
+                    <div class="mutual-friends">8 bạn chung</div>
+                </div>
+                <button class="action-btn add-btn" onclick="addFriend(this)">👤+</button>
+            </div>
+
+            <div class="friend-item fade-in">
+                <div class="avatar-container">
+                    <div class="avatar">KĐ</div>
+                    <div class="online-indicator"></div>
+                </div>
+                <div class="friend-info">
+                    <div class="friend-name">Khánh đăng1</div>
+                    <div class="friend-username">@anhkhanh999</div>
+                    <div class="mutual-friends">15 bạn chung</div>
+                </div>
+                <button class="action-btn added-btn">✓</button>
+            </div>
+
+            <div class="friend-item fade-in">
+                <div class="avatar-container">
+                    <div class="avatar">KĐ</div>
+                </div>
+                <div class="friend-info">
+                    <div class="friend-name">Khánh đăng1</div>
+                    <div class="friend-username">@anhkhanh985</div>
+                    <div class="mutual-friends">2 bạn chung</div>
+                </div>
+                <button class="action-btn add-btn" onclick="addFriend(this)">👤+</button>
+            </div>
+        </div>
+
+        <div class="view-more">
+            <button class="view-more-btn" onclick="loadMore()">Xem thêm gợi ý</button>
+        </div>
+    </div>
+
+  
+</body>
+</html>

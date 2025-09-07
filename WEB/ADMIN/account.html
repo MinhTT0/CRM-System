@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý Tài khoản</title>
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css" />
+  <script src="logout.js"></script>
+</head>
+<body>
+  <div class="sidebar bg-dark text-white d-flex flex-column" style="height:100vh">
+    <h2 class="text-center py-3">CRM ADMIN</h2>
+  
+    <!-- <a href="index.html" class="nav-link px-3">
+      <i class="bi bi-house-door me-2"></i>Trang chủ
+    </a> -->
+    <a href="business.html" class="nav-link px-3">
+      <i class="bi bi-building me-2"></i>Doanh nghiệp
+    </a>
+    <a href="account.html" class="nav-link px-3 active bg-primary text-white">
+      <i class="bi bi-person-circle me-2"></i>Tài khoản
+    </a>
+    <!-- … các menu khác … -->
+  
+    <div class="mt-auto">
+      <a  id="logoutBtn" class="nav-link px-3">
+        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+      </a>
+    </div>
+  </div>
+  
+
+  <div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Quản lý Tài khoản</h2>
+      <!-- <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+        <i class="bi bi-plus-circle"></i> Thêm Tài khoản
+      </button> -->
+    </div>
+    <hr>
+
+    <!-- Table & Loading -->
+    <div id="accountContent" class="d-none">
+      <table class="table table-bordered" id="accountTable">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Mã TK</th>
+            <th>Username</th>
+            <th>Quyền</th>
+            <th>Doanh nghiệp</th>
+            <th>Email</th>
+            <th>Điện thoại</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="loadingIndicator" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-3">Đang tải dữ liệu...</p>
+    </div>
+  </div>
+
+  <!-- Modal Thêm -->
+  <div class="modal fade" id="addAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="addAccountForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Tài khoản</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" name="username" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" name="password" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Quyền</label>
+              <select id="roleAdd" name="id_role" class="form-select" required>
+                <option value="">Chọn quyền</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Doanh nghiệp</label>
+              <select id="busAdd" name="id_business" class="form-select" required>
+                <option value="">Chọn doanh nghiệp</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Điện thoại</label>
+              <input type="text" class="form-control" name="phone">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Thêm mới</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sửa -->
+  <div class="modal fade" id="editAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editAccountForm">
+          <input type="hidden" name="id_account">
+          <div class="modal-header">
+            <h5 class="modal-title">Sửa Tài khoản</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" name="username" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password mới (để trống nếu không đổi)</label>
+              <input type="password" class="form-control" name="password">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Quyền</label>
+              <select id="roleEdit" name="id_role" class="form-select" required>
+                <option value="">Chọn quyền</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Doanh nghiệp</label>
+              <select id="busEdit" name="id_business" class="form-select" required>
+                <option value="">Chọn doanh nghiệp</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Điện thoại</label>
+              <input type="text" class="form-control" name="phone">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS libs -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    const API_BASE = 'https://khaituanminh.atwebpages.com/api';
+    let businessMap = {};
+
+   
+    
+    // 2) Lấy danh sách doanh nghiệp để đổ dropdown & map
+    function fetchBusinessList() {
+      $.ajax({
+        url: `${API_BASE}/admin_get_business.php`,
+        method: 'GET',
+        dataType: 'json',
+        success(res) {
+          if (res.status === 'success') {
+            const opts = res.data.map(b => {
+              businessMap[b.id_business] = b.name;
+              return `<option value="${b.id_business}">${b.name}</option>`;
+            }).join('');
+            $('#busAdd, #busEdit').append(opts);
+          }
+        }
+      });
+    }
+
+    // 3) Lấy và vẽ bảng tài khoản
+    function fetchAccounts() {
+      $.ajax({
+        url: `${API_BASE}/get_account.php`,
+        method: 'POST',
+        dataType: 'json'
+      }).done(res => {
+        if (res.status !== 'success') {
+          return Swal.fire('Lỗi','Không tải được danh sách tài khoản','error');
+        }
+        const rows = res.data.map((u,i) => {
+          const roleName = roleMap[u.id_role] || u.id_role;
+          const busName  = businessMap[u.id_business] || u.id_business;
+          return [
+            i+1,
+            u.id_account,
+            u.username,
+            roleName,
+            busName,
+            u.email,
+            u.phone,
+            `<button class="btn btn-sm btn-primary edit-btn" data-id="${u.id_account}">Sửa</button>
+             <button class="btn btn-sm btn-danger delete-btn" data-id="${u.id_account}">Xóa</button>`
+          ];
+        });
+
+        if (!$.fn.DataTable.isDataTable('#accountTable')) {
+          $('#accountTable').DataTable({
+            data: rows,
+            columns: [
+              { title:'STT' },
+              { title:'Mã TK' },
+              { title:'Username' },
+              { title:'Quyền' },
+              { title:'Doanh nghiệp' },
+              { title:'Email' },
+              { title:'Điện thoại' },
+              { title:'Hành động', orderable:false }
+            ],
+            language: { url:'//cdn.datatables.net/plug-ins/2.3.0/i18n/vi.json' }
+          });
+        } else {
+          const dt = $('#accountTable').DataTable();
+          dt.clear().rows.add(rows).draw(false);
+        }
+
+        $('#loadingIndicator').hide();
+        $('#accountContent').removeClass('d-none');
+      }).fail(()=>{
+        Swal.fire('Lỗi','Server không phản hồi','error');
+      });
+    }
+
+    // Thêm tài khoản
+    $('#addAccountForm').submit(function(e){
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(this).entries());
+      $.ajax({
+        url: `${API_BASE}/add_account.php`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        dataType: 'json'
+      })
+      .done(res => {
+        if (res.status === 'success') {
+          $('#addAccountModal').modal('hide');
+          fetchAccounts();
+          Swal.fire('Thành công','Đã thêm tài khoản','success');
+        } else {
+          Swal.fire('Lỗi', res.message, 'error');
+        }
+      })
+      .fail(() => {
+        Swal.fire('Lỗi','Không thể thêm tài khoản','error');
+      });
+    });
+
+    // Mở modal Sửa
+    $(document).on('click', '.edit-btn', function(){
+      const id = $(this).data('id');
+      $.ajax({
+        url: `${API_BASE}/get_account.php`,
+        method: 'POST',
+        dataType: 'json'
+      }).done(res => {
+        const u = res.data.find(x => x.id_account == id);
+        if (!u) return;
+        const f = $('#editAccountForm');
+        f.find('[name=id_account]').val(u.id_account);
+        f.find('[name=username]').val(u.username);
+        f.find('[name=password]').val('');
+        f.find('[name=id_role]').val(u.id_role);
+        f.find('[name=id_business]').val(u.id_business);
+        f.find('[name=email]').val(u.email);
+        f.find('[name=phone]').val(u.phone);
+        $('#editAccountModal').modal('show');
+      });
+    });
+
+    // Cập nhật tài khoản
+    $('#editAccountForm').submit(function(e){
+      e.preventDefault();
+      let data = Object.fromEntries(new FormData(this).entries());
+      if (!data.password) delete data.password; // nếu để trống thì giữ mật khẩu cũ
+      $.ajax({
+        url: `${API_BASE}/update_account.php`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        dataType: 'json'
+      })
+      .done(res => {
+        if (res.status === 'success') {
+          $('#editAccountModal').modal('hide');
+          fetchAccounts();
+          Swal.fire('Thành công','Cập nhật thành công','success');
+        } else {
+          Swal.fire('Lỗi', res.message, 'error');
+        }
+      })
+      .fail(() => {
+        Swal.fire('Lỗi','Server không phản hồi','error');
+      });
+    });
+
+    // Xóa tài khoản
+    $(document).on('click', '.delete-btn', function(){
+      const id = $(this).data('id');
+      Swal.fire({
+        title: 'Bạn có chắc muốn xóa?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xóa'
+      }).then(ans => {
+        if (!ans.isConfirmed) return;
+        $.ajax({
+          url: `${API_BASE}/del_account.php`,
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ id_account: id }),
+          dataType: 'json'
+        })
+        .done(res => {
+          if (res.status === 'success') {
+            fetchAccounts();
+            Swal.fire('Đã xóa!', '', 'success');
+          } else {
+            Swal.fire('Lỗi', res.message, 'error');
+          }
+        })
+        .fail((xhr, status) => {
+          let msg = 'Lỗi hệ thống, không xóa được.';
+          const body = (xhr.responseText||'').toLowerCase();
+          if (body.includes('foreign key constraint')) {
+            msg = 'Không thể xóa: Tài khoản đang được tham chiếu.';
+          }
+          Swal.fire('Lỗi', msg, 'error');
+        });
+      });
+    });
+    const roleMap = {
+  1: 'Nhân viên',
+  2: 'Quản lý',
+  3: 'Quản trị viên'
+};
+
+// 2) Hàm đổ <select> quyền từ map
+function initRoleDropdowns() {
+  const opts = Object.entries(roleMap)
+    .map(([id, name]) => `<option value="${id}">${name}</option>`)
+    .join('');
+  $('#roleAdd, #roleEdit').append(opts);
+}
+    // Khởi tạo
+    $(document).ready(function(){
+        initRoleDropdowns();
+      fetchBusinessList();
+      fetchAccounts();
+    });
+  </script>
+</body>
+</html>

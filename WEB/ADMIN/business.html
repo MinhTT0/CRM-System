@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý Doanh nghiệp</title>
+  <!-- Bootstrap & DataTables CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css" />
+  <script src="logout.js"></script>
+</head>
+<body>
+  <div class="sidebar bg-dark text-white d-flex flex-column" style="height:100vh">
+    <h2 class="text-center py-3">CRM ADMIN</h2>
+  
+    <!-- <a href="index.html" class="nav-link px-3">
+      <i class="bi bi-house-door me-2"></i>Trang chủ
+    </a> -->
+    <a href="business.html" class="nav-link px-3 active bg-primary text-white">
+      <i class="bi bi-building me-2"></i>Doanh nghiệp
+    </a>
+    <a href="account.html" class="nav-link px-3 ">
+      <i class="bi bi-person-circle me-2"></i>Tài khoản
+    </a>
+    <!-- … các menu khác … -->
+  
+    <div class="mt-auto">
+      <a  id="logoutBtn" class="nav-link px-3">
+        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+      </a>
+    </div>
+  </div>
+</div>
+
+
+  <div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Quản lý Doanh nghiệp</h2>
+    </div>
+    <hr>
+    <div class="d-flex align-items-center">
+      <label class="me-2 fw-bold">Lọc doang nghiệp:</label>
+      <select id="filterStatus" class="form-select w-auto">
+        <option value="">Tất cả</option>
+        <option value="2">Doanh nghiệp nhỏ</option>
+        <option value="3">Doanh nghiệp vừa</option>
+       
+      </select>
+    </div>
+    <!-- Table & Loading -->
+    <div id="businessContent" class="d-none">
+      <table class="table table-bordered" id="businessTable">
+        <thead>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="loadingIndicator" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-3">Đang tải dữ liệu...</p>
+    </div>
+  </div>
+
+  <!-- Modal Xem chi tiết Doanh nghiệp -->
+<div class="modal fade" id="viewBusinessModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="view">
+      <div class="modal-header">
+        <h5 class="modal-title">Chi tiết Doanh nghiệp</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="id_businesstype" name="id_businesstype">
+        <p><strong>Mã DN:</strong> <span id="detailBizId"></span></p>
+        <p><strong>Tên DN:</strong> <span id="detailBizName"></span></p>
+        <p><strong>Loại DN:</strong> <span id="detailBizType"></span></p>
+        <p><strong>Địa chỉ:</strong> <span id="detailBizAddress"></span></p>
+        <p><strong>Điện thoại:</strong> <span id="detailBizPhone"></span></p>
+        <p><strong>Email:</strong> <span id="detailBizEmail"></span></p>
+        <p><strong>Mã số thuế:</strong> <span id="detailBizTax"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="goToBusinessPage" class="btn btn-success">
+          Đi tới trang doanh nghiệp
+        </button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+  <!-- Modal Thêm -->
+  <div class="modal fade" id="addBusinessModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="addBusinessForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Doanh nghiệp</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Tên Doanh nghiệp</label>
+              <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Loại Doanh nghiệp</label>
+              <select id="typeAdd" name="id_businesstype" class="form-select" required>
+                <option value="">Chọn loại</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Địa chỉ</label>
+              <input type="text" class="form-control" name="address">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Điện thoại</label>
+              <input type="text" class="form-control" name="phone">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Mã số thuế</label>
+              <input type="text" class="form-control" name="taxnumber">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Thêm mới</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sửa -->
+  <div class="modal fade" id="editBusinessModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editBusinessForm">
+          <input type="hidden" name="id_business">
+          <div class="modal-header">
+            <h5 class="modal-title">Sửa Doanh nghiệp</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Tên Doanh nghiệp</label>
+              <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Loại Doanh nghiệp</label>
+              <select id="typeEdit" name="id_businesstype" class="form-select" required>
+                <option value="">Chọn loại</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Địa chỉ</label>
+              <input type="text" class="form-control" name="address">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Điện thoại</label>
+              <input type="text" class="form-control" name="phone">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Mã số thuế</label>
+              <input type="text" class="form-control" name="taxnumber">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    // lưu map id → tên loại
+    let businessTypes = {};
+    let dataTable;
+    // 1) Lấy danh sách loại doanh nghiệp
+    function fetchBusinessTypes() {
+  return $.ajax({
+    url: 'https://khaituanminh.atwebpages.com/api/get_businesstype.php',
+    method: 'GET',
+    dataType: 'json',
+    success(res) {
+      if (res.status==='success') {
+        res.data.forEach(t => businessTypes[t.id_businesstype] = t.businesstypename);
+        const opts = res.data.map(t =>
+          `<option value="${t.id_businesstype}">${t.businesstypename}</option>`
+        ).join('');
+        $('#typeAdd, #typeEdit').append(opts);
+      }
+    }
+  });
+}
+
+  
+    // 2) Lấy và vẽ bảng doanh nghiệp, hiển thị tên loại thay vì id
+    function fetchBusinesses() {
+      $.ajax({
+        url: 'https://khaituanminh.atwebpages.com/api/admin_get_business.php',
+        method: 'GET',
+        dataType: 'json',
+        success(res) {
+          window._allBusinesses = res.data;
+          if (res.status !== 'success') {
+            return Swal.fire('Lỗi', 'Không tải được danh sách doanh nghiệp', 'error');
+          }
+          const rows = res.data.map((b, i) => {
+            // lấy tên loại từ map, nếu chưa có thì hiển thị id
+            const typeName = businessTypes[b.id_businesstype] || b.id_businesstype;
+            return [
+              i + 1,
+              b.id_business,
+              b.name,
+              typeName,
+              b.address,
+              b.phone,
+              b.email,
+              b.taxnumber,
+              `
+              <button class="btn btn-sm btn-info view-btn" data-id="${b.id_business}" data-id_businesstype="${b.id_businesstype}" ><i class="bi bi-eye"></i> Xem</button>
+              <button class="btn btn-sm btn-primary edit-btn" data-id="${b.id_business}">Sửa</button>
+               <button class="btn btn-sm btn-danger delete-btn" data-id="${b.id_business}">Xóa</button>`
+            ];
+          });
+  
+          if (!$.fn.DataTable.isDataTable('#businessTable')) {
+            dataTable =$('#businessTable').DataTable({
+              data: rows,
+              columns: [
+                { title: 'STT' },
+                { title: 'Mã DN' },
+                { title: 'Tên DN' },
+                { title: 'Loại DN' },
+                { title: 'Địa chỉ' },
+                { title: 'Điện thoại' },
+                { title: 'Email' },
+                { title: 'Mã số thuế' },
+                { title: 'Hành động', orderable: false }
+              ],
+              language: { url: '//cdn.datatables.net/plug-ins/2.3.0/i18n/vi.json' }
+            });
+          } else {
+            const dt = $('#businessTable').DataTable();
+            dt.clear().rows.add(rows).draw(false);
+          }
+  
+          $('#loadingIndicator').hide();
+          $('#businessContent').removeClass('d-none');
+        },
+        error() {
+          Swal.fire('Lỗi', 'Server không phản hồi', 'error');
+        }
+      });
+    }
+    // Mở modal Chi tiết khi bấm nút Xem
+$(document).on('click', '.view-btn', function(){
+  const id = $(this).data('id');
+  const id_businesstype = $(this).data('id_businesstype');
+  const form = $('#view');
+  // Lấy lại danh sách res.data đã fetch ở trên
+  form.find('[name=id_businesstype]').val(id_businesstype);
+
+  // Thực ra bạn đã có res.data trong closure của fetchBusinesses,
+  // nhưng để đơn giản, ta có thể fetch lại hoặc lưu tạm mảng businesses toàn cục:
+  const b = window._allBusinesses.find(x => x.id_business == id);
+  if (!b) return Swal.fire('Lỗi', 'Không tìm thấy doanh nghiệp', 'error');
+  $('#detailBizId').text(b.id_business);
+  $('#detailBizName').text(b.name);
+  $('#detailBizType').text(businessTypes[b.id_businesstype] || b.id_businesstype);
+  $('#detailBizAddress').text(b.address);
+  $('#detailBizPhone').text(b.phone);
+  $('#detailBizEmail').text(b.email);
+  $('#detailBizTax').text(b.taxnumber);
+
+  new bootstrap.Modal(document.getElementById('viewBusinessModal')).show();
+});
+
+// Khi bấm “Đi tới trang doanh nghiệp”
+$(document).on('click', '#goToBusinessPage', function(){
+  const id = $('#detailBizId').text();
+  const id_businesstype = $('#id_businesstype').val();
+  console.log(id_businesstype)
+  localStorage.setItem('id_business', id);
+  localStorage.setItem('id_businesstype', id_businesstype);
+  window.location.href = '../index.html';
+});
+    // Thêm doanh nghiệp
+    // $('#addBusinessForm').submit(function(e) {
+    //   e.preventDefault();
+    //   const data = Object.fromEntries(new FormData(this).entries());
+    //   $.ajax({
+    //     url: 'https://your-domain.com/api/add_business.php',
+    //     method: 'POST',
+    //     contentType: 'application/json',
+    //     data: JSON.stringify(data),
+    //     success(res) {
+    //       if (res.status==='success') {
+    //         $('#addBusinessModal').modal('hide');
+    //         fetchBusinesses();
+    //         Swal.fire('Thành công', 'Đã thêm doanh nghiệp.', 'success');
+    //       } else {
+    //         Swal.fire('Lỗi', res.message, 'error');
+    //       }
+    //     }
+    //   });
+    // });
+
+    // Mở modal Sửa
+    $(document).on('click', '.edit-btn', function(){
+      const id = $(this).data('id');
+      $.ajax({
+        url: 'https://khaituanminh.atwebpages.com/api/admin_get_business.php',
+        method: 'GET',
+        dataType: 'json',
+        success(res){
+          const b = res.data.find(x=> x.id_business==id);
+          if (!b) return;
+          const f = $('#editBusinessForm');
+          f.find('[name=id_business]').val(b.id_business);
+          f.find('[name=name]').val(b.name);
+          f.find('[name=id_businesstype]').val(b.id_businesstype);
+          f.find('[name=address]').val(b.address);
+          f.find('[name=phone]').val(b.phone);
+          f.find('[name=email]').val(b.email);
+          f.find('[name=taxnumber]').val(b.taxnumber);
+          $('#editBusinessModal').modal('show');
+        }
+      });
+    });
+
+    // Cập nhật doanh nghiệp
+    $('#editBusinessForm').submit(function(e){
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(this).entries());
+      $.ajax({
+        url: 'https://khaituanminh.atwebpages.com/api/update_business.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success(res){
+          if (res.status==='success') {
+            $('#editBusinessModal').modal('hide');
+            fetchBusinesses();
+            Swal.fire('Thành công', 'Đã cập nhật.', 'success');
+          } else Swal.fire('Lỗi', res.message, 'error');
+        }
+      });
+    });
+
+    // Xóa doanh nghiệp
+    $(document).on('click', '.delete-btn', function(){
+      const id = $(this).data('id');
+      Swal.fire({
+        title: 'Xác nhận xóa?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xóa'
+      }).then(ans=>{
+        if (!ans.isConfirmed) return;
+        $.ajax({
+          url: 'https://khaituanminh.atwebpages.com/api/del_business.php',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ id_business: id }),
+          success(res){
+            if (res.status==='success') {
+              fetchBusinesses();
+              Swal.fire('Đã xóa!', '', 'success');
+            } else {
+              Swal.fire('Lỗi', res.message, 'error');
+            }
+           
+          },
+          error: function () {
+          Swal.fire('Lỗi', 'Không thể xóa doanh nghiệp', 'error');
+        }
+        });
+        
+      });
+    });
+
+    function getStatusText(status) {
+  switch (parseInt(status)) {
+    case 2: return 'Công ty nhỏ';
+    case 3: return 'Công ty vừa';
+    default: return 'Không rõ';
+}
+}
+    $('#filterStatus').on('change', function () {
+  const val = $(this).val();
+  console.log(val)
+  // Xác định cột chứa trạng thái (0-based): STT=0, ..., Trạng thái=7
+  const colIdx = 3;
+  if (val === '') {
+    // Hiển thị tất cả
+    dataTable.column(colIdx).search('').draw();
+  } else {
+    const statusText = getStatusText(val);
+    dataTable
+      .column(colIdx)
+      .search(`^${statusText}$`, true, false)
+      .draw();
+  }
+});
+    // Khởi tạo khi load trang
+    $(document).ready(function(){
+  fetchBusinessTypes().then(()=>{
+    fetchBusinesses();
+  });
+});
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quên mật khẩu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <script type="text/javascript" src="https://cdn.emailjs.com/sdk/3.2/email.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {  background-image: url('image.png');
+      background-size: cover;  display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .box { width:100%; max-width:400px; padding:30px; background:#fff; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+    .step { display: none; }
+    .step.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h3 class="text-center mb-4">Quên mật khẩu</h3>
+    <div id="step1" class="step active">
+      <form id="form-email">
+        <div class="mb-3">
+          <label for="email" class="form-label">Nhập email của bạn</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Gửi</button>
+      </form>
+    </div>
+    <div id="step2" class="step">
+      <form id="form-otp">
+        <div class="mb-3">
+          <label for="otp" class="form-label">Nhập mã OTP</label>
+          <input type="text" class="form-control" id="otp" name="otp" placeholder="6 chữ số" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Xác thực OTP</button>
+      </form>
+      <div class="text-center mt-2">
+        <button id="resend-otp" class="btn btn-link">Gửi lại OTP</button>
+      </div>
+    </div>
+
+    <div id="step3" class="step">
+      <form id="form-reset">
+        <div class="mb-3">
+          <label for="new_password" class="form-label">Mật khẩu mới</label>
+          <input type="password" class="form-control" id="new_password" name="new_password" required>
+        </div>
+        <div class="mb-3">
+          <label for="confirm_password" class="form-label">Xác nhận mật khẩu</label>
+          <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Đổi mật khẩu</button>
+      </form>
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="login.html"><i class="bi bi-arrow-left"></i> Quay lại Đăng nhập</a>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+    emailjs.init({
+      publicKey: "1J05tuhZq5vKGcx0R",
+    });
+    })();
+    </script>
+  <script>
+  
+
+    let idAccount = null;
+    let currentOtp = null;
+    let userEmail = null;
+    $('#form-email').submit(function(e) {
+      e.preventDefault();
+      userEmail = $('#email').val().trim();
+      if (!userEmail) return;
+
+      $.post('https://khaituanminh.atwebpages.com/api/get_id.php', { email: userEmail }, function(res) {
+        if (res.status === 'success') {
+          idAccount = res.data.id_account;
+          console.log(idAccount)
+          currentOtp = Math.floor(100000 + Math.random() * 900000).toString();
+          console.log(currentOtp)
+          console.log(userEmail)
+
+          $.post('https://khaituanminh.atwebpages.com/api/send_otp.php', { id_account: idAccount, otpcode: currentOtp }, function(recordRes) {
+            if (recordRes.status === 'success') {
+              emailjs.send('service_j76mzsa', 'template_924b4kl', {
+                email: userEmail,
+                passcode: currentOtp
+              })
+              .then(() => {
+                Swal.fire('Đã gửi OTP', 'Vui lòng kiểm tra email của bạn.', 'success');
+                $('#step1').removeClass('active');
+                $('#step2').addClass('active');
+              }, (err) => {
+                console.error(err);
+                Swal.fire('Lỗi', 'Gửi email thất bại, vui lòng thử lại.', 'error');
+              });
+            } else {
+              Swal.fire('Lỗi', recordRes.message || 'Không tạo được OTP.', 'error');
+            }
+          }, 'json').fail(() => {
+            Swal.fire('Lỗi', 'Không thể lưu OTP lên server.', 'error');
+          });
+
+        } else {
+          Swal.fire('Lỗi', res.message || 'Email không tồn tại.', 'error');
+        }
+      }, 'json').fail(() => {
+        Swal.fire('Lỗi', 'Không thể kết nối máy chủ.', 'error');
+      });
+    });
+
+    $('#resend-otp').click(function(){
+      if (!idAccount || !userEmail) return;
+      currentOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      $.post('https://khaituanminh.atwebpages.com/api/send_otp.php', { id_account: idAccount, otpcode: currentOtp }, function(recordRes) {
+        if (recordRes.status === 'success') {
+          emailjs.send('service_j76mzsa', 'template_924b4kl', {
+            to_email: userEmail,
+            otpcode: currentOtp
+          })
+          .then(() => {
+            Swal.fire('Đã gửi lại', 'OTP mới đã được gửi.', 'success');
+          }, () => {
+            Swal.fire('Lỗi', 'Gửi email thất bại.', 'error');
+          });
+        } else {
+          Swal.fire('Lỗi', recordRes.message || 'Không tạo được OTP.', 'error');
+        }
+      }, 'json');
+    });
+
+    $('#form-otp').submit(function(e) {
+      e.preventDefault();
+      const otpInput = $('#otp').val().trim();
+      if (!otpInput) return;
+      $.post('https://khaituanminh.atwebpages.com/api/verify_otp.php', { id_account: idAccount, otpcode: otpInput }, function(res) {
+        if (res.status === 'success') {
+          Swal.fire('Thành công', 'OTP hợp lệ, bạn có thể đổi mật khẩu.', 'success');
+          $('#step2').removeClass('active');
+          $('#step3').addClass('active');
+        } else {
+          Swal.fire('Lỗi', res.message || 'OTP không đúng hoặc đã hết hạn.', 'error');
+        }
+      }, 'json').fail(() => {
+        Swal.fire('Lỗi', 'Không thể kết nối máy chủ.', 'error');
+      });
+    });
+
+    $('#form-reset').submit(function(e) {
+      e.preventDefault();
+      const pw = $('#new_password').val();
+      const pw2 = $('#confirm_password').val();
+      if (pw !== pw2) {
+        Swal.fire('Lỗi', 'Mật khẩu nhập lại không khớp.', 'error');
+        return;
+      }
+      $.post('https://khaituanminh.atwebpages.com/api/change_password.php', { id_account: idAccount, password: pw }, function(res) {
+        if (res.status === 'success') {
+          Swal.fire('Thành công', 'Mật khẩu đã được thay đổi.', 'success')
+            .then(() => { window.location.href = 'login.html'; });
+        } else {
+          Swal.fire('Lỗi', res.message || 'Đổi mật khẩu thất bại.', 'error');
+        }
+      }, 'json').fail(() => {
+        Swal.fire('Lỗi', 'Không thể kết nối máy chủ.', 'error');
+      });
+    });
+  </script>
+
+</body>
+</html>

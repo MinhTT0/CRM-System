@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý lịch hẹn</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/plug-ins/2.3.0/dataRender/ellipsis.js"></script>
+    
+  <script src="logout.js"></script>
+  <script src="style.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+        
+<div class="sidebar bg-dark text-white">
+  <h2 class="text-center py-3">CRM System</h2>
+  <a href="index.html" class="nav-link px-3 " data-feature="Báo cáo"> <i class="bi bi-house-door me-2"></i>Trang chủ</a>
+
+  <a class="nav-link px-3  " data-bs-toggle="collapse" data-feature="Quản lý khách hàng" href="#customerMenu" >
+    <i class="bi bi-people me-2"></i>Khách Hàng <i class="bi bi-caret-down-fill float-end"></i>
+  </a>
+  <div class="collapse" id="customerMenu">
+    <a href="customers.html">Thông tin khách hàng</a>
+    <a href="cskh.html">Chăm sóc khách hàng</a>
+    <a href="customerstype.html">Loại khách hàng</a>
+    <a href="more.html">Dữ liệu tuỳ chỉnh</a>
+  </div>
+  <a href="user.html" class="nav-link px-3" id="nav-manager" ><i class="bi bi-person-workspace me-2"></i>Nhân Viên</a>
+  <a href="orders.html" class="nav-link px-3"  id="nav-order"><i class="bi bi-bag-check me-2"></i>Đơn Hàng</a>
+  <a class="nav-link px-3" id="nav-product" data-bs-toggle="collapse" href="#productMenu" >
+  <i class="bi bi-box-seam me-2" ></i>Sản Phẩm <i class="bi bi-caret-down-fill float-end"></i>
+  </a>
+      <div class="collapse" id="productMenu">
+      <a href="products.html">Thông tin sản phẩm</a>
+      <a href="measurement.html">Loại đơn vị tính</a>
+      </div>
+  <a href="work.html" class="nav-link px-3"  id="nav-work"><i class="bi bi-list-task me-2"></i>Công việc</a> 
+  <a href="apointment.html" class="nav-link px-3 active bg-primary text-white " id="nav-apointment"><i class="bi bi-calendar-check"></i> Lịch hẹn</a>
+          <div class="mt-auto">
+      <a  id="returnBtn" class="nav-link px-3" href="ADMIN/business.html">
+        <i class="bi bi-box-arrow-right me-2"></i>ADMIN WEB
+      </a>
+    </div>
+</div>  
+<div class="content p-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Quản lý lịch hẹn</h2>
+    <div>
+      <div class="d-flex align-items-center gap-3">
+        <!-- notification dropdown -->
+        <div class="dropdown" data-bs-auto-close="outside">
+          <a class="btn btn-light position-relative"
+             href="#"
+             id="notifDropdown"
+             data-bs-toggle="dropdown"
+             aria-expanded="false"
+             ata-bs-auto-close="outside">
+            <i class="bi bi-bell fs-4"></i>
+            <span id="notifBadge"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+              0
+            </span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end p-2"
+              aria-labelledby="notifDropdown"
+              style="max-width:300px; max-height:400px; overflow:auto;">
+            <li class="text-center text-muted small">Đang tải...</li>
+          </ul>
+        </div>
+        
+  
+        <!-- user dropdown -->
+        <div class="dropdown">
+          <a id="userNameDisplay"
+             class="btn btn-light dropdown-toggle"
+             href="#"
+             role="button"
+             data-bs-toggle="dropdown"
+             aria-expanded="false">
+            <i class="bi bi-person-circle text-primary"></i> Tài khoản
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="profile.html">Thông tin tài khoản</a></li>
+
+            <li><a class="dropdown-item" href="pass.html">Đổi mật khẩu</a></li>
+            <li id="logoutBtn">
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+  </div>
+  </div>
+  <hr>
+<div class="modal fade" id="addWorkModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="addWorkForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Thêm lịch hẹn mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Nhân viên</label>
+            <select class="js-example-responsive" name="id_user" id="userAdd" style="width: 100%" required ></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Khách hàng</label>
+            <select class="js-example-responsive" name="id_customer" id="customerAdd" style="width: 100%" required ></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Địa chỉ</label>
+            <textarea class="form-control auto-resize" name="location" rows="1" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nội dung</label>
+            <textarea class="form-control auto-resize" name="content" rows="1" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ngày bắt đầu</label>
+            <input type="datetime-local" class="form-control" name="createdate" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Ngày hết hạn</label>
+            <input type="datetime-local" class="form-control" name="time" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Trạng thái</label>
+            <select class="form-select" name="status" required>
+      <option value="0">Đang chờ khách phản hồi</option>
+      <option value="1">Khách đã từ chối</option>
+      <option value="2">Khách đã đồng ý</option>
+      <option value="3">Đã gặp mặt thành công</option>
+      <option value="4">Đã gặp mặt thất bại</option>
+      <option value="5">Chưa gặp</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Thêm mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addWorkModal">
+    <i class="bi bi-plus-circle"></i> Thêm lịch hẹn
+  </button>
+
+  <div class="d-flex align-items-center">
+    <label class="me-2 fw-bold">Lọc trạng thái:</label>
+    <select id="filterStatus" class="form-select w-auto">
+      <option value="">Tất cả</option>
+      <option value="0">Đang chờ khách phản hồi</option>
+      <option value="1">Khách đã từ chối</option>
+      <option value="2">Khách đã đồng ý</option>
+      <option value="3">Đã gặp mặt thành công</option>
+      <option value="4">Đã gặp mặt thất bại</option>
+      <option value="5">Chưa gặp</option>
+    </select>
+  </div>
+</div>
+
+
+<!-- Bảng lịch hẹn -->
+<div id="workContent" class="d-none">
+  <table class="table table-bordered" id="dataTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- Modal Sửa lịch hẹn -->
+<div class="modal fade" id="editWorkModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="editWorkForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Sửa lịch hẹn</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id_apointment">
+          <div class="mb-3">
+            <label class="form-label">Nhân viên</label>
+            <select class="js-example-responsive" name="id_user" id="userEdit" style="width: 100%" required> </select>
+            <div class="mb-3">
+                <label class="form-label">Khách hàng</label>
+                <select class="js-example-responsive" name="id_customer" id="customerEdit" style="width: 100%" required ></select>
+              </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Địa chỉ</label>
+            <textarea class="form-control auto-resize" name="location" rows="1" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nội dung</label>
+            <textarea class="form-control auto-resize" name="content" rows="1" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ngày bắt đầu</label>
+            <input type="datetime-local" class="form-control" name="createdate" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Ngày hết hạn</label>
+            <input type="datetime-local" class="form-control" name="time" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Trạng thái</label>
+            <select class="form-select" name="status" required>
+              <option value="0">Đang chờ khách phản hồi</option>
+              <option value="1">Khách đã từ chối</option>
+              <option value="2">Khách đã đồng ý</option>
+              <option value="3">Đã gặp mặt thành công</option>
+              <option value="4">Đã gặp mặt thất bại</option>
+              <option value="5">Chưa gặp</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+  <div id="loadingIndicator" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3">Đang tải lịch hẹn...</p>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script >
+  const id_business = localStorage.getItem('id_business');
+
+  async function fetchUsers() {
+  try {
+    const [uRes, cRes] = await Promise.all([
+      fetch('https://khaituanminh.atwebpages.com/api/get_alluser.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_business })
+      }).then(r => r.json()),
+
+      fetch('https://khaituanminh.atwebpages.com/api/get_customer.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_business })
+      }).then(r => r.json())
+    ]);
+
+    if (uRes.status !== 'success') {
+      return Swal.fire('Lỗi', 'Không tải được danh sách nhân viên', 'error');
+    }
+    if (cRes.status !== 'success') {
+      return Swal.fire('Lỗi', 'Không tải được danh sách khách hàng', 'error');
+    }
+
+    users     = uRes.data;
+    customers = cRes.data;
+
+    fetchWorks();
+  } catch (err) {
+    Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ', 'error');
+  }
+}
+
+let dataTable;
+
+// Load lịch hẹn
+function fetchWorks() {
+  $.ajax({
+    url: 'https://khaituanminh.atwebpages.com/api/get_apointment.php',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ id_business }),
+    success: function (res) {
+      if (res.status !== 'success') return Swal.fire('Lỗi', 'Không tải được danh sách lịch hẹn', 'error');
+
+      const workData = res.data;
+      const tableData = workData.map((w, i) => {
+        const statusText = getStatusText(w.status);
+        const time = formatDateTime(w.time);
+        const createdate = formatDateTime(w.createdate);
+
+        return [
+          i + 1,
+          w.username,
+          w.customername,
+          w.location,
+          w.content,
+          createdate,
+          time,
+          `<span class="badge ${getStatusBadge(w.status)}">${statusText}</span>`,
+          `
+            <button class="btn btn-primary btn-sm edit-btn" data-id="${w.id_apointment}" 
+            data-idusers="${w.id_user}" 
+            data-idcustomers="${w.id_customer}"  
+            data-location="${w.location}" 
+            data-content="${w.content}" 
+            data-time="${w.time}" 
+            data-createdate="${w.createdate}" 
+            data-status="${w.status}">
+
+            <i class="bi bi-pencil-square"></i> Sửa
+            </button>
+            <button class="btn btn-danger btn-sm delete-btn" data-id="${w.id_apointment}">Xóa</button>
+          `
+        ];
+      });
+
+      if (!$.fn.DataTable.isDataTable('#dataTable')) {
+        dataTable = $('#dataTable').DataTable({
+          data: tableData,
+          autoWidth: false,      
+          fixedColumns: { right: 1 },
+          columns: [
+            { title: 'STT', width: '50px' },
+            { title: 'Tên nhân viên', width: '200px' },
+            { title: 'Tên khách hàng', width: '200px' },
+            { title: 'Địa chỉ', width: '200px',height: '100px', className: 'ellipsis'},
+            { title: 'Nội dung', width: '300px', height: '100px', className: 'ellipsis' },
+            { title: 'Ngày tạo', width: '150px' },
+            { title: 'Ngày hẹn', width: '150px' },
+            { title: 'Trạng thái', width: '200px'},
+            { title: 'Hành động', width: '150px', orderable: false }
+          ],
+          language: {
+            searchPlaceholder: "Tìm kiếm…",
+            search: ""
+          },
+          initComplete: function (settings, json) {
+            $("#DataTableID").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");
+          },
+        });
+      } else {
+        dataTable.clear();
+        dataTable.rows.add(tableData);
+        dataTable.draw(false);
+      }
+
+      $('#loadingIndicator').addClass('d-none');
+      $('#workContent').removeClass('d-none').addClass('fade-in');
+    }
+  });
+}
+
+function loadDropdown(sel, api, placeholder, isAdd) {
+    sel.select2({ dropdownParent: sel.closest('.modal'), placeholder });
+    $.ajax({
+        url: api,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ id_business }),
+        success(res) {
+            if (res.status !== 'success') return;
+            sel.empty(); 
+            sel.append(new Option(placeholder, '', !isAdd, !isAdd));
+            res.data.forEach(x => {
+                const text = api.includes('customer') ? x.name : x.name;
+                sel.append(new Option(
+                    text + ' [' + (api.includes('customer') ? x.id_customer : x.id_user) + ']',
+                    api.includes('customer') ? x.id_customer : x.id_user
+                ));
+            });
+            if (isAdd) {
+                sel.val('').trigger('change');
+            }
+        }
+    });
+}
+// Thêm lịch hẹn
+$('#addWorkForm').submit(function (e) {
+  e.preventDefault();
+  const formData = Object.fromEntries(new FormData(this));
+  if(formData.createdate > formData.time) return Swal.fire('Lỗi', 'Khoảng ngày không hợp lệ', 'error');
+  $.ajax({
+    url: 'https://khaituanminh.atwebpages.com/api/add_apointment.php',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(formData),
+    success: function (res) {
+      if (res.status === 'success') {
+        bootstrap.Modal.getInstance(document.getElementById('addWorkModal')).hide();
+        Swal.fire('Thành công', 'Đã thêm lịch hẹn', 'success');
+        fetchWorks();
+        $('#addWorkForm')[0].reset();
+      } else {
+        Swal.fire('Lỗi', res.message, 'error');
+      }
+    }
+  });
+});
+
+// Click sửa lịch hẹn
+$(document).on('click', '.edit-btn', function () {
+  const form = $('#editWorkForm');
+  const id = $(this).data('id');
+  const content = $(this).data('content');
+  const location = $(this).data('location');
+  const createdate = $(this).data('createdate');
+  const time = $(this).data('time');
+  const status = $(this).data('status');
+  const userId = $(this).data('idusers');
+  const customerId = $(this).data('idcustomers'); 
+  form.find('[name=id_apointment]').val(id);
+  form.find('[name=content]').val(content);
+  form.find('[name=location]').val(location);
+  form.find('[name=createdate]').val(createdate.slice(0, 16)); 
+  form.find('[name=time]').val(time.slice(0, 16)); 
+  form.find('[name=status]').val(status);
+
+  const user = users.find(u => u.id_user === userId);
+  const userName = user ? user.name : 'Chưa xác định'; 
+  form.find('[name="id_user"]').val(userId).trigger('change');  
+
+  const customer = customers.find(c => c.id_customer === customerId); 
+  const customerName = customer ? customer.name : 'Chưa xác định'; 
+  form.find('[name="id_customer"]').val(customerId).trigger('change'); 
+  
+
+  const modal = new bootstrap.Modal(document.getElementById('editWorkModal'));
+  modal.show();
+});
+
+// Lưu sửa lịch hẹn
+$('#editWorkForm').submit(function (e) {
+  e.preventDefault();
+  const formData = Object.fromEntries(new FormData(this));
+  if(formData.createdate > formData.time) return Swal.fire('Lỗi', 'Khoảng ngày không hợp lệ', 'error');
+  $.ajax({
+    url: 'https://khaituanminh.atwebpages.com/api/change_apointment.php',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(formData),
+    success: function (res) {
+      if (res.status === 'success') {
+        bootstrap.Modal.getInstance(document.getElementById('editWorkModal')).hide();
+        Swal.fire('Thành công', 'Cập nhật lịch hẹn thành công', 'success');
+        fetchWorks();
+      } else {
+        Swal.fire('Lỗi', res.message, 'error');
+      }
+    }
+  });
+});
+$(document).on('click', '.delete-btn', function() {
+  const id = $(this).data('id');
+  Swal.fire({
+    title: 'Bạn chắc chắn muốn xóa?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy'
+  }).then(result => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: 'https://khaituanminh.atwebpages.com/api/del_apointment.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ id_apointment: id }),
+        success: function(res) {
+          if (res.status === 'success') {
+            fetchWorks();
+            Swal.fire('Đã xóa!', '', 'success');
+          } else {
+            Swal.fire('Lỗi', res.message, 'error');
+          }
+        },
+        error: function () {
+      Swal.fire('Lỗi', 'Không thể xóa lịch hẹn', 'error');
+    }
+      });
+    }
+  });
+});
+$(document).on('click', '.view-work', function () {
+  const workId = $(this).data('id');
+  window.location.href = `work-detail.html?id=${workId}`;
+});
+
+
+// Lọc theo trạng thái
+function getStatusText(status) {
+  switch (parseInt(status)) {
+    case 0: return 'Đang chờ khách phản hồi';
+    case 1: return 'Khách đã từ chối';
+    case 2: return 'Khách đã đồng ý';
+    case 3: return 'Đã gặp mặt thành công';
+    case 4: return 'Đã gặp mặt thất bại';
+    case 5: return 'Chưa gặp';
+    default: return 'Không rõ';
+}
+}
+
+function getStatusBadge(status) {
+  switch (parseInt(status)) {
+    case 0: return 'bg-warning';
+    case 1: return 'bg-danger';
+    case 2: return 'bg-success';
+    case 3: return 'bg-success';
+    case 4: return 'bg-danger';
+    case 5: return 'bg-warning';
+    default: return 'bg-light';
+  }
+}
+
+// Lọc theo trạng thái
+$('#filterStatus').on('change', function () {
+  const val = $(this).val();
+  const colIdx = 7;
+
+  if (val === '') {
+    dataTable.column(colIdx).search('').draw();
+  } else {
+    const statusText = getStatusText(val);
+    dataTable
+      .column(colIdx)
+      .search(`^${statusText}$`, true, false)
+      .draw();
+  }
+});
+      
+$('#dataTable tbody').on('click', 'td.ellipsis', function() {
+  const $tr = $(this).closest('tr');
+  $tr.toggleClass('expanded');
+  dataTable.columns.adjust();
+});
+
+
+function formatDateTime(datetimeStr) {
+  const d = new Date(datetimeStr);
+  return d.toLocaleString('vi-VN', { hour12: false });
+}
+$(".js-example-theme-single").select2({
+  theme: "classic"
+});
+$(document).ready(function () {
+  fetchUsers();
+  loadDropdown($('#userAdd'),     'https://khaituanminh.atwebpages.com/api/get_alluser.php', 'Chọn nhân viên', true);
+  loadDropdown($('#userEdit'),    'https://khaituanminh.atwebpages.com/api/get_alluser.php', 'Chọn nhân viên');
+  loadDropdown($('#customerAdd'),    'https://khaituanminh.atwebpages.com/api/get_customer.php', 'Chọn khách hàng', true);
+  loadDropdown($('#customerEdit'),    'https://khaituanminh.atwebpages.com/api/get_customer.php', 'Chọn nhân viên');
+});
+
+</script>
+<script src="notification.js"></script>
+</body>
+</html>

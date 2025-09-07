@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mời bạn bè tham gia nhóm</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #e4e6ea;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1c1e21;
+            text-align: center;
+            margin: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e4e6ea;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #d8dadf;
+        }
+
+        .close-btn i {
+            font-size: 18px;
+            color: #65676b;
+        }
+
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .search-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e4e6ea;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: #f0f2f5;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            background: white;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #65676b;
+            font-size: 16px;
+        }
+
+        .suggestions-section {
+            padding: 16px 24px 0;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 12px;
+        }
+
+        .friends-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .friend-item:hover {
+            background: #f2f2f2;
+        }
+
+        .friend-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .friend-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 2px;
+        }
+
+        .friend-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #42b883;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 12px;
+        }
+
+        .friend-checkbox.checked {
+            background: #42b883;
+        }
+
+        .friend-checkbox.checked i {
+            color: white;
+            font-size: 12px;
+        }
+
+        .friend-checkbox:not(.checked):hover {
+            border-color: #369870;
+            background: rgba(66, 184, 131, 0.1);
+        }
+
+        .selected-friends {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e4e6ea;
+            background: #f8f9fa;
+        }
+
+        .selected-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #65676b;
+            margin-bottom: 8px;
+        }
+
+        .selected-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .selected-friend {
+            display: flex;
+            align-items: center;
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 16px;
+            padding: 4px 8px 4px 4px;
+            font-size: 13px;
+            color: #1877f2;
+        }
+
+        .selected-friend .avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 6px;
+        }
+
+        .selected-friend .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .selected-friend .remove-btn {
+            background: none;
+            border: none;
+            color: #1877f2;
+            cursor: pointer;
+            margin-left: 4px;
+            padding: 0;
+            font-size: 12px;
+        }
+
+        .selected-friend .remove-btn:hover {
+            color: #166fe5;
+        }
+
+        .qr-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e4e6ea;
+        }
+
+        .qr-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .qr-item:hover {
+            opacity: 0.8;
+        }
+
+        .qr-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #1c1e21;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .qr-text {
+            flex: 1;
+        }
+
+        .qr-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 2px;
+        }
+
+        .qr-subtitle {
+            font-size: 13px;
+            color: #65676b;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 80px;
+        }
+
+        .btn-cancel {
+            background: #e4e6ea;
+            color: #4b4f56;
+        }
+
+        .btn-cancel:hover {
+            background: #d8dadf;
+        }
+
+        .btn-primary {
+            background: #1877f2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #166fe5;
+        }
+
+        .btn-primary:disabled {
+            background: #e4e6ea;
+            color: #bcc0c4;
+            cursor: not-allowed;
+        }
+
+        /* Scrollbar styling */
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Mời bạn bè tham gia nhóm này</h2>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="search-section">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Tìm bạn bè theo tên" id="searchInput">
+                </div>
+            </div>
+
+            <div class="selected-friends" id="selectedSection" style="display: none;">
+                <div class="selected-title">ĐÃ CHỌN <span id="selectedCount">0</span> NGƯỜI BẠN</div>
+                <div class="selected-list" id="selectedList"></div>
+            </div>
+
+            <div class="suggestions-section">
+                <h3 class="section-title">Gợi ý</h3>
+                <div class="friends-list" id="friendsList">
+                    <div class="friend-item" data-id="1">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="Hoàng Mạnh Tuấn">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Hoàng Mạnh Tuấn</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(1, 'Hoàng Mạnh Tuấn', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" data-id="2">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Đặng Tuyên">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Đặng Tuyên</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(2, 'Đặng Tuyên', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" data-id="3">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face" alt="Cao Mạnh Duy">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Cao Mạnh Duy</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(3, 'Cao Mạnh Duy', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" data-id="4">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b830?w=100&h=100&fit=crop&crop=face" alt="Ngọc Hương">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Ngọc Hương</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(4, 'Ngọc Hương', 'https://images.unsplash.com/photo-1494790108755-2616b612b830?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" data-id="5">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" alt="Huy Trần">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Huy Trần</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(5, 'Huy Trần', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" data-id="6">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&h=100&fit=crop&crop=face" alt="Trần Minh Nghĩa">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Trần Minh Nghĩa</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(6, 'Trần Minh Nghĩa', 'https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" data-id="7">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face" alt="Lê Hiếu">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Lê Hiếu</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(7, 'Lê Hiếu', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" data-id="8">
+                        <div class="friend-avatar">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face" alt="Vũ Ngân Hà">
+                        </div>
+                        <div class="friend-info">
+                            <div class="friend-name">Vũ Ngân Hà</div>
+                        </div>
+                        <div class="friend-checkbox" onclick="toggleFriend(8, 'Vũ Ngân Hà', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qr-section">
+                <div class="qr-item">
+                    <div class="qr-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <div class="qr-text">
+                        <div class="qr-title">Mời qua mã QR</div>
+                        <div class="qr-subtitle">Bạn có thể tạo mã QR cho mọi người quét để truy cập vào nhóm của bạn</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeModal()">Hủy</button>
+            <button class="btn btn-primary" id="inviteBtn" onclick="sendInvites()" disabled>Gửi lời mời</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedFriends = {};
+        let selectedCount = 0;
+
+        function toggleFriend(id, name, avatar) {
+            const checkbox = document.querySelector(`[data-id="${id}"] .friend-checkbox`);
+            const isChecked = checkbox.classList.contains('checked');
+
+            if (isChecked) {
+                // Uncheck
+                checkbox.classList.remove('checked');
+                delete selectedFriends[id];
+                selectedCount--;
+            } else {
+                // Check
+                checkbox.classList.add('checked');
+                selectedFriends[id] = { name, avatar };
+                selectedCount++;
+            }
+
+            updateSelectedSection();
+            updateInviteButton();
+        }
+
+        function updateSelectedSection() {
+            const selectedSection = document.getElementById('selectedSection');
+            const selectedList = document.getElementById('selectedList');
+            const selectedCountEl = document.getElementById('selectedCount');
+
+            selectedCountEl.textContent = selectedCount;
+
+            if (selectedCount > 0) {
+                selectedSection.style.display = 'block';
+                selectedList.innerHTML = '';
+
+                Object.keys(selectedFriends).forEach(id => {
+                    const friend = selectedFriends[id];
+                    const selectedFriendEl = document.createElement('div');
+                    selectedFriendEl.className = 'selected-friend';
+                    selectedFriendEl.innerHTML = `
+                        <div class="avatar">
+                            <img src="${friend.avatar}" alt="${friend.name}">
+                        </div>
+                        <span>${friend.name}</span>
+                        <button class="remove-btn" onclick="removeFriend(${id})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    selectedList.appendChild(selectedFriendEl);
+                });
+            } else {
+                selectedSection.style.display = 'none';
+            }
+        }
+
+        function removeFriend(id) {
+            const checkbox = document.querySelector(`[data-id="${id}"] .friend-checkbox`);
+            checkbox.classList.remove('checked');
+            delete selectedFriends[id];
+            selectedCount--;
+            updateSelectedSection();
+            updateInviteButton();
+        }
+
+        function updateInviteButton() {
+            const inviteBtn = document.getElementById('inviteBtn');
+            inviteBtn.disabled = selectedCount === 0;
+        }
+
+        function sendInvites() {
+            if (selectedCount > 0) {
+                alert(`Đã gửi lời mời đến ${selectedCount} người bạn!`);
+                closeModal();
+            }
+        }
+
+        function closeModal() {
+            document.body.style.display = 'none';
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const friendItems = document.querySelectorAll('.friend-item');
+
+            friendItems.forEach(item => {
+                const name = item.querySelector('.friend-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Click outside to close (optional)
+        document.addEventListener('click', function(e) {
+            if (e.target === document.body) {
+                closeModal();
+            }
+        });
+
+        // Prevent modal from closing when clicking inside
+        document.querySelector('.modal').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>

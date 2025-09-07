@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thành viên nhóm - Vnow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .title::before {
+            content: "👥";
+            font-size: 1.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            width: 250px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            color: #667eea;
+            font-size: 1rem;
+        }
+
+        .view-all-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats {
+            padding: 1rem 2rem;
+            background: rgba(102, 126, 234, 0.05);
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .filters {
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            background: transparent;
+            border-radius: 20px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-1px);
+        }
+
+        .members-grid {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .member-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .member-card:hover::before {
+            left: 100%;
+        }
+
+        .member-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            position: relative;
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            border-radius: 50%;
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-online { background: #2ecc71; }
+        .status-away { background: #f39c12; }
+        .status-offline { background: #95a5a6; }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .member-role {
+            font-size: 0.85rem;
+            color: #667eea;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .member-username {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin: 0.5rem 0;
+        }
+
+        .member-stats {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .member-stat {
+            text-align: center;
+        }
+
+        .member-stat-number {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .member-stat-label {
+            font-size: 0.75rem;
+            color: #7f8c8d;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .message-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .message-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .more-btn {
+            background: rgba(0, 0, 0, 0.05);
+            color: #7f8c8d;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .more-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #2c3e50;
+        }
+
+        .admin-badge {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .moderator-badge {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .load-more {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .load-more-btn {
+            background: none;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .load-more-btn:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .members-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .filters {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Thành viên</h1>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Tìm kiếm thành viên..." onkeyup="searchMembers(this.value)">
+                </div>
+                <button class="view-all-btn">Xem tất cả thành viên</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number">1,247</span>
+                <span>Tổng thành viên</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">234</span>
+                <span>Đang hoạt động</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">89</span>
+                <span>Mới tham gia tuần này</span>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterMembers('all')">Tất cả</button>
+            <button class="filter-btn" onclick="filterMembers('online')">Đang online</button>
+            <button class="filter-btn" onclick="filterMembers('admin')">Quản trị viên</button>
+            <button class="filter-btn" onclick="filterMembers('moderator')">Điều hành viên</button>
+            <button class="filter-btn" onclick="filterMembers('new')">Thành viên mới</button>
+        </div>
+
+        <div class="members-grid" id="membersGrid">
+            <!-- Admin -->
+            <div class="member-card fade-in" data-role="admin" data-status="online">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="avatar-img">
+                        <div class="status-indicator status-online"></div>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-name">
+                            Nguyễn Minh Quân
+                            <div class="admin-badge">👑</div>
+                        </div>
+                        <div class="member-role">Quản trị viên</div>
+                    </div>
+                </div>
+                <div class="member-username">@minhnquan</div>
+                <div class="member-stats">
+                    <div class="member-stat">
+                        <div class="member-stat-number">156</div>
+                        <div class="member-stat-label">Bài viết</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">2.3K</div>
+                        <div class="member-stat-label">Tương tác</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">3 năm</div>
+                        <div class="member-stat-label">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="action-btn message-btn">💬 Nhắn tin</button>
+                    <button class="action-btn more-btn">⋯</button>
+                </div>
+            </div>
+
+            <!-- Moderator -->
+            <div class="member-card fade-in" data-role="moderator" data-status="online">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b371?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="avatar-img">
+                        <div class="status-indicator status-online"></div>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-name">
+                            Trần Thị Hương
+                            <div class="moderator-badge">🛡️</div>
+                        </div>
+                        <div class="member-role">Điều hành viên</div>
+                    </div>
+                </div>
+                <div class="member-username">@thuhuong</div>
+                <div class="member-stats">
+                    <div class="member-stat">
+                        <div class="member-stat-number">89</div>
+                        <div class="member-stat-label">Bài viết</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">1.8K</div>
+                        <div class="member-stat-label">Tương tác</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">2 năm</div>
+                        <div class="member-stat-label">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="action-btn message-btn">💬 Nhắn tin</button>
+                    <button class="action-btn more-btn">⋯</button>
+                </div>
+            </div>
+
+            <!-- Regular Member - Online -->
+            <div class="member-card fade-in" data-role="member" data-status="online">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #FF6B6B, #FF8E8E);">KĐ</div>
+                        <div class="status-indicator status-online"></div>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-name">Khánh Đăng</div>
+                        <div class="member-role">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-username">@anhkhanh</div>
+                <div class="member-stats">
+                    <div class="member-stat">
+                        <div class="member-stat-number">45</div>
+                        <div class="member-stat-label">Bài viết</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">567</div>
+                        <div class="member-stat-label">Tương tác</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">8 tháng</div>
+                        <div class="member-stat-label">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="action-btn message-btn">💬 Nhắn tin</button>
+                    <button class="action-btn more-btn">⋯</button>
+                </div>
+            </div>
+
+            <!-- Regular Member - Away -->
+            <div class="member-card fade-in" data-role="member" data-status="away">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="avatar-img">
+                        <div class="status-indicator status-away"></div>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-name">Lê Văn Nam</div>
+                        <div class="member-role">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-username">@vannam</div>
+                <div class="member-stats">
+                    <div class="member-stat">
+                        <div class="member-stat-number">78</div>
+                        <div class="member-stat-label">Bài viết</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">943</div>
+                        <div class="member-stat-label">Tương tác</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">1 năm</div>
+                        <div class="member-stat-label">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="action-btn message-btn">💬 Nhắn tin</button>
+                    <button class="action-btn more-btn">⋯</button>
+                </div>
+            </div>
+
+            <!-- New Member -->
+            <div class="member-card fade-in" data-role="member" data-status="online" data-new="true">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="avatar-img">
+                        <div class="status-indicator status-online"></div>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-name">
+                            Phạm Thị Linh
+                            <span style="background: #2ecc71; color: white; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 8px; margin-left: 0.5rem;">MỚI</span>
+                        </div>
+                        <div class="member-role">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-username">@thilinh</div>
+                <div class="member-stats">
+                    <div class="member-stat">
+                        <div class="member-stat-number">3</div>
+                        <div class="member-stat-label">Bài viết</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">25</div>
+                        <div class="member-stat-label">Tương tác</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">3 ngày</div>
+                        <div class="member-stat-label">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="action-btn message-btn">💬 Nhắn tin</button>
+                    <button class="action-btn more-btn">⋯</button>
+                </div>
+            </div>
+
+            <!-- Offline Member -->
+            <div class="member-card fade-in" data-role="member" data-status="offline">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">HT</div>
+                        <div class="status-indicator status-offline"></div>
+                    </div>
+                    <div class="member-info">
+                        <div class="member-name">Hoàng Tuấn</div>
+                        <div class="member-role">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-username">@hoangtuan</div>
+                <div class="member-stats">
+                    <div class="member-stat">
+                        <div class="member-stat-number">124</div>
+                        <div class="member-stat-label">Bài viết</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">1.2K</div>
+                        <div class="member-stat-label">Tương tác</div>
+                    </div>
+                    <div class="member-stat">
+                        <div class="member-stat-number">1.5 năm</div>
+                        <div class="member-stat-label">Thành viên</div>
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="action-btn message-btn">💬 Nhắn tin</button>
+                    <button class="action-btn more-btn">⋯</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="load-more">
+            <button class="load-more-btn" onclick="loadMoreMembers()">Tải thêm thành viên</button>
+        </div>
+    </div>
+
+   
