@@ -5,22 +5,17 @@ This project is a Customer Relationship Management (CRM) web application designe
 
 🎯 Objectives
 
-Centralize customer data management.
-
-Improve customer care processes.
-
-Provide an intuitive and user-friendly interface.
+- Centralize customer data management.
+- Improve customer care processes.
+- Provide an intuitive and user-friendly interface.
 
 🛠️ Technologies Used
 
-Frontend: HTML, CSS, JavaScript, ReactJS, Bootstrap
-
-Backend (API): Node.js / Java (depending on your implementation)
-
-Database: MySQL / SQL Server
+- Frontend: HTML, CSS, JavaScript, ReactJS, Bootstrap
+- Backend (API): Node.js / Java (depending on your implementation)
+- Database: MySQL / SQL Server
 
 📊 Achievements
 
-Completed a functional CRM system with customer, appointment, and reporting modules.
-
-Delivered a clean and easy-to-use UI that met project requirements.
+- Completed a functional CRM system with customer, appointment, and reporting modules.
+- Delivered a clean and easy-to-use UI that met project requirements.
